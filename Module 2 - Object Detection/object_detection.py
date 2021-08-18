@@ -21,7 +21,13 @@ def detect(frame, net, transform):
         while detections[0, i, j, 0] > 0.6:
             pt = (detections[0, i, j, 1:] * scale).numpy()
             cv2.rectangle(frame, (int(pt[0]), int(pt[1])), (int(pt[2]), int(pt[3])), (255, 0, 0), 2)
-            cv2.putText(frame, labelmap[i - 1], (int(pt[0]), int(pt[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255), 2, cv2.LINE_AA)
+            cv2.putText(frame, labelmap[i - 1], (int(pt[0]), int(pt[1])), cv2.FONT_HERSHEY_SIMPLEX, 2, (255, 255, 255),
+                        2, cv2.LINE_AA)
             j += 1
 
     return frame
+
+
+# Creating the SSD neural network
+net = build_ssd('test')
+net.load_state_dict(torch.load('ssd300_mAP_77.43_v2.pth', map_location=lambda storage, loc:storage))
