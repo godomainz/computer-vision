@@ -9,4 +9,6 @@ import imageio
 # Defining a function that will do the detections
 def detect(frame, net, transform):
     height, width = frame.shape[:2]
-    
+    frame_t = transform(frame)[0]
+    x = torch.from_numpy(frame_t).permute(2, 0, 1)
+    x = Variable(x.unsqueeze(0))
