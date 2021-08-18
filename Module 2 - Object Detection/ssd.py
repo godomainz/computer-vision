@@ -1,8 +1,18 @@
+"""
+Copyright (c) 2017 Max deGroot, Ellis Brown
+Released under the MIT license
+https://github.com/amdegroot/ssd.pytorch
+Updated by: Takuya Mouri and me
+"""
+
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
-from torch.autograd import Variable
-from layers import *
+# from torch.autograd import Variable
+# from layers import *
+from layers.functions.detection import Detect
+from layers.functions.prior_box import PriorBox
+from layers.modules.l2norm import L2Norm
 from data import v2
 import os
 
@@ -30,7 +40,9 @@ class SSD(nn.Module):
         self.num_classes = num_classes
         # TODO: implement __call__ in PriorBox
         self.priorbox = PriorBox(v2)
-        self.priors = Variable(self.priorbox.forward(), volatile=True)
+        # PyTorch 1.5.1
+        # self.priors = Variable(self.priorbox.forward(), volatile=True)
+        self.priors = self.priorbox.forward()
         self.size = 300
 
         # SSD network
@@ -43,8 +55,11 @@ class SSD(nn.Module):
         self.conf = nn.ModuleList(head[1])
 
         if phase == 'test':
-            self.softmax = nn.Softmax()
-            self.detect = Detect(num_classes, 0, 200, 0.01, 0.45)
+            # PyTorch 1.5.1
+            # self.softmax = nn.Softmax()
+            # self.detect = Detect(num_classes, 0, 200, 0.01, 0.45)
+            self.softmax = nn.Softmax(dim=-1)
+            self.detect = Detect()
 
     def forward(self, x):
         """Applies network layers and ops on input image(s) x.
@@ -94,11 +109,19 @@ class SSD(nn.Module):
 
         loc = torch.cat([o.view(o.size(0), -1) for o in loc], 1)
         conf = torch.cat([o.view(o.size(0), -1) for o in conf], 1)
+
         if self.phase == "test":
-            output = self.detect(
-                loc.view(loc.size(0), -1, 4),                   # loc preds
+            # PyTorch 1.5.1
+            # output = self.detect(
+            #     loc.view(loc.size(0), -1, 4),                   # loc preds
+            #     self.softmax(conf.view(-1, self.num_classes)),  # conf preds
+            #     self.priors.type(type(x.data))                  # default boxes
+            # )
+            output = self.detect.apply(
+                self.num_classes, 0, 200, 0.01, 0.45,
+                loc.view(loc.size(0), -1, 4),  # loc preds
                 self.softmax(conf.view(-1, self.num_classes)),  # conf preds
-                self.priors.type(type(x.data))                  # default boxes
+                self.priors.type(type(x.data))  # default boxes
             )
         else:
             output = (
@@ -152,7 +175,7 @@ def add_extras(cfg, i, batch_norm=False):
         if in_channels != 'S':
             if v == 'S':
                 layers += [nn.Conv2d(in_channels, cfg[k + 1],
-                           kernel_size=(1, 3)[flag], stride=2, padding=1)]
+                                     kernel_size=(1, 3)[flag], stride=2, padding=1)]
             else:
                 layers += [nn.Conv2d(in_channels, v, kernel_size=(1, 3)[flag])]
             flag = not flag
@@ -168,7 +191,7 @@ def multibox(vgg, extra_layers, cfg, num_classes):
         loc_layers += [nn.Conv2d(vgg[v].out_channels,
                                  cfg[k] * 4, kernel_size=3, padding=1)]
         conf_layers += [nn.Conv2d(vgg[v].out_channels,
-                        cfg[k] * num_classes, kernel_size=3, padding=1)]
+                                  cfg[k] * num_classes, kernel_size=3, padding=1)]
     for k, v in enumerate(extra_layers[1::2], 2):
         loc_layers += [nn.Conv2d(v.out_channels, cfg[k]
                                  * 4, kernel_size=3, padding=1)]
