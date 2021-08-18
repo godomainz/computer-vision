@@ -12,3 +12,6 @@ def detect(frame, net, transform):
     frame_t = transform(frame)[0]
     x = torch.from_numpy(frame_t).permute(2, 0, 1)
     x = Variable(x.unsqueeze(0))
+    y = net(x)
+    detections = y.data
+    scale = torch.tensor(width, height, width, height)
