@@ -63,3 +63,7 @@ class G(nn.Module):
     def forward(self, input):
         output = self.main(input)
         return output
+
+# Creating the generator
+netG = G()
+netG.apply(weights_init)
