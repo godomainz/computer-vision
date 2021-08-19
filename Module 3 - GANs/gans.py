@@ -96,3 +96,7 @@ class D(nn.Module):
             nn.Conv2d(self.feature_maps * (2 * 2 * 2), 1, self.kernel_size, 1, 0, bias=self.bias),
             nn.Sigmoid()
         )
+
+    def forward(self, input):
+        output = self.main(input)
+        return output.view(-1)
