@@ -41,6 +41,8 @@ def weights_init(m):
 class G(nn.Module):
     feature_maps = 512
     kernel_size = 4
+    stride = 2
+    padding = 1
     bias = False
 
     def __init__(self):
@@ -48,15 +50,15 @@ class G(nn.Module):
         self.main = nn.Sequential(
             nn.ConvTranspose2d(100, self.feature_maps, self.kernel_size, 1, 0, bias=self.bias),
             nn.BatchNorm2d(self.feature_maps), nn.ReLU(True),
-            nn.ConvTranspose2d(self.feature_maps, self.feature_maps / 2, self.kernel_size, 2, 1, bias=self.bias),
+            nn.ConvTranspose2d(self.feature_maps, self.feature_maps / 2, self.kernel_size, self.stride, self.padding, bias=self.bias),
             nn.BatchNorm2d(self.feature_maps / 2), nn.ReLU(True),
-            nn.ConvTranspose2d(self.feature_maps / 2, (self.feature_maps / 2) / 2, self.kernel_size, 2, 1,
+            nn.ConvTranspose2d(self.feature_maps / 2, (self.feature_maps / 2) / 2, self.kernel_size, self.stride, self.padding,
                                bias=self.bias),
             nn.BatchNorm2d((self.feature_maps / 2) / 2), nn.ReLU(True),
-            nn.ConvTranspose2d((self.feature_maps / 2) / 2, ((self.feature_maps / 2) / 2) / 2, self.kernel_size, 2, 1,
+            nn.ConvTranspose2d((self.feature_maps / 2) / 2, ((self.feature_maps / 2) / 2) / 2, self.kernel_size, self.stride, self.padding,
                                bias=self.bias),
             nn.BatchNorm2d((self.feature_maps / 2) / 2) / 2, nn.ReLU(True),
-            nn.ConvTranspose2d(((self.feature_maps / 2) / 2) / 2, 3, self.kernel_size, 2, 1, bias=self.bias),
+            nn.ConvTranspose2d(((self.feature_maps / 2) / 2) / 2, 3, self.kernel_size, self.stride, self.padding, bias=self.bias),
             nn.Tanh()
         )
 
@@ -64,6 +66,33 @@ class G(nn.Module):
         output = self.main(input)
         return output
 
+
 # Creating the generator
 netG = G()
 netG.apply(weights_init)
+
+
+class D(nn.Module):
+    feature_maps = 64
+    kernel_size = 4
+    stride = 2
+    padding = 1
+    bias = False
+    inplace = True
+
+    def __init__(self):
+        super(G, self).__init__()
+        self.main = nn.Sequential(
+            nn.Conv2d(3, self.feature_maps, self.kernel_size, self.stride, self.padding, bias=self.bias),
+            nn.LeakyReLU(0.2, inplace=self.inplace),
+            nn.Conv2d(self.feature_maps, self.feature_maps * 2, self.kernel_size, self.stride, self.padding, bias=self.bias),
+            nn.BatchNorm2d(self.feature_maps * 2),  nn.LeakyReLU(0.2, inplace=self.inplace),
+            nn.Conv2d(self.feature_maps * 2, self.feature_maps * (2 * 2), self.kernel_size, self.stride, self.padding,
+                      bias=self.bias),
+            nn.BatchNorm2d(self.feature_maps * (2 * 2)), nn.LeakyReLU(0.2, inplace=self.inplace),
+            nn.Conv2d(self.feature_maps * (2 * 2), self.feature_maps * (2 * 2 * 2), self.kernel_size, self.stride, self.padding,
+                      bias=self.bias),
+            nn.BatchNorm2d(self.feature_maps * (2 * 2 * 2)), nn.LeakyReLU(0.2, inplace=self.inplace),
+            nn.Conv2d(self.feature_maps * (2 * 2 * 2), 1, self.kernel_size, 1, 0, bias=self.bias),
+            nn.Sigmoid()
+        )
