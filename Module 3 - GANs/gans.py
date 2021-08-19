@@ -50,10 +50,16 @@ class G(nn.Module):
             nn.BatchNorm2d(self.feature_maps), nn.ReLU(True),
             nn.ConvTranspose2d(self.feature_maps, self.feature_maps / 2, self.kernel_size, 2, 1, bias=self.bias),
             nn.BatchNorm2d(self.feature_maps / 2), nn.ReLU(True),
-            nn.ConvTranspose2d(self.feature_maps / 2, (self.feature_maps / 2) / 2, self.kernel_size, 2, 1, bias=self.bias),
+            nn.ConvTranspose2d(self.feature_maps / 2, (self.feature_maps / 2) / 2, self.kernel_size, 2, 1,
+                               bias=self.bias),
             nn.BatchNorm2d((self.feature_maps / 2) / 2), nn.ReLU(True),
-            nn.ConvTranspose2d((self.feature_maps / 2) / 2, ((self.feature_maps / 2) / 2) / 2, self.kernel_size, 2, 1, bias=self.bias),
+            nn.ConvTranspose2d((self.feature_maps / 2) / 2, ((self.feature_maps / 2) / 2) / 2, self.kernel_size, 2, 1,
+                               bias=self.bias),
             nn.BatchNorm2d((self.feature_maps / 2) / 2) / 2, nn.ReLU(True),
             nn.ConvTranspose2d(((self.feature_maps / 2) / 2) / 2, 3, self.kernel_size, 2, 1, bias=self.bias),
             nn.Tanh()
         )
+
+    def forward(self, input):
+        output = self.main(input)
+        return output
