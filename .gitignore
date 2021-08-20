@@ -236,3 +236,4 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all
 /Module 2 - Object Detection/output.mp4
 /Module 3 - GANs/results/
+/Module 3 - GANs/data_cf/
