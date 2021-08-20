@@ -1,8 +1,5 @@
 # Importing the libraries
-from generator import G
-from discriminator import D
 from __future__ import print_function
-import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
@@ -10,11 +7,15 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.autograd import Variable
+from generator import G
+from discriminator import D
 import os
 
+# Setting some hyperparameters
 batchSize = 64  # We set the size of the batch.
 imageSize = 64  # We set the size of the generated images (64x64).
-
+input_vector = 100
+nb_epochs = 25
 # Creating the transformations
 transform = transforms.Compose([transforms.Resize((imageSize, imageSize)), transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5,
@@ -36,14 +37,10 @@ def weights_init(m):
         m.bias.data.fill_(0)
 
 
-input_vector = 100
-
-
 # Create results directory
 def create_dir(name):
     if not os.path.exists(name):
         os.makedirs(name)
-
 
 
 # Creating the generator
@@ -55,13 +52,14 @@ netD = D()
 netD.apply(weights_init)
 
 # Training the DCGANs
-criterion = nn.BCELoss()
-optimizerD = optim.Adam(netD.parameters(), lr=0.002, betas=(0.5, 0.999))
-optimizerG = optim.Adam(netG.parameters(), lr=0.002, betas=(0.5, 0.999))
 
-nb_epochs = 25
+criterion = nn.BCELoss()
+optimizerD = optim.Adam(netD.parameters(), lr=0.0002, betas=(0.5, 0.999))
+optimizerG = optim.Adam(netG.parameters(), lr=0.0002, betas=(0.5, 0.999))
+
 generator_model = 'generator_model'
 discriminator_model = 'discriminator_model'
+
 
 def save_model(epoch, model, optimizer, error, filepath):
     torch.save({
@@ -71,11 +69,13 @@ def save_model(epoch, model, optimizer, error, filepath):
         'loss': error.data
     }, filepath)
 
+
 for epoch in range(nb_epochs):
 
     for i, data in enumerate(dataloader, 0):
 
         # 1st Step: Updating the weights of the neural network of the discriminator
+
         netD.zero_grad()
 
         # Training the discriminator with a real image of the dataset
