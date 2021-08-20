@@ -238,3 +238,5 @@ cython_debug/
 /Module 2 - Object Detection/output.mp4
 /Module 3 - GANs/results/
 /Module 3 - GANs/data_cf/
+/Module 3 - GANs/discriminator_model
+/Module 3 - GANs/generator_model

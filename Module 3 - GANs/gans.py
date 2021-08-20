@@ -2,6 +2,7 @@
 from generator import G
 from discriminator import D
 from __future__ import print_function
+import torch
 import torch.nn as nn
 import torch.optim as optim
 import torch.utils.data
@@ -59,6 +60,16 @@ optimizerD = optim.Adam(netD.parameters(), lr=0.002, betas=(0.5, 0.999))
 optimizerG = optim.Adam(netG.parameters(), lr=0.002, betas=(0.5, 0.999))
 
 nb_epochs = 25
+generator_model = 'generator_model'
+discriminator_model = 'discriminator_model'
+
+def save_model(epoch, model, optimizer, error, filepath):
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss': error.data
+    }, filepath)
 
 for epoch in range(nb_epochs):
 
@@ -98,6 +109,9 @@ for epoch in range(nb_epochs):
         # 3rd Step: Printing the losses and saving the real images and the generated images of the minibatch every 100 steps
 
         print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, nb_epochs, i, len(dataloader), errD.data, errG.data))
+        save_model(epoch, netG, optimizerG, errG, generator_model)
+        save_model(epoch, netD, optimizerD, errD, discriminator_model)
+
         if i % 100 == 0:
             create_dir('results')
             vutils.save_image(real, '%s/real_samples.png' % "./results", normalize=True)
