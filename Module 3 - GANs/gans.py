@@ -1,4 +1,6 @@
 # Importing the libraries
+from generator import G
+from discriminator import D
 from __future__ import print_function
 import torch.nn as nn
 import torch.optim as optim
@@ -42,75 +44,10 @@ def create_dir(name):
         os.makedirs(name)
 
 
-# Defining the Generator
-class G(nn.Module):
-    feature_maps = 512
-    kernel_size = 4
-    stride = 2
-    padding = 1
-    bias = False
-
-    def __init__(self):
-        super(G, self).__init__()
-        self.main = nn.Sequential(
-            nn.ConvTranspose2d(input_vector, self.feature_maps, self.kernel_size, 1, 0, bias=self.bias),
-            nn.BatchNorm2d(self.feature_maps), nn.ReLU(True),
-            nn.ConvTranspose2d(self.feature_maps, int(self.feature_maps // 2), self.kernel_size, self.stride, self.padding,
-                               bias=self.bias),
-            nn.BatchNorm2d(int(self.feature_maps // 2)), nn.ReLU(True),
-            nn.ConvTranspose2d(int(self.feature_maps // 2), int((self.feature_maps // 2) // 2), self.kernel_size, self.stride,
-                               self.padding,
-                               bias=self.bias),
-            nn.BatchNorm2d(int((self.feature_maps // 2) // 2)), nn.ReLU(True),
-            nn.ConvTranspose2d((int((self.feature_maps // 2) // 2)), int(((self.feature_maps // 2) // 2) // 2), self.kernel_size,
-                               self.stride, self.padding,
-                               bias=self.bias),
-            nn.BatchNorm2d(int((self.feature_maps // 2) // 2) // 2), nn.ReLU(True),
-            nn.ConvTranspose2d(int(((self.feature_maps // 2) // 2) // 2), 3, self.kernel_size, self.stride, self.padding,
-                               bias=self.bias),
-            nn.Tanh()
-        )
-
-    def forward(self, input):
-        output = self.main(input)
-        return output
-
 
 # Creating the generator
-netG = G()
+netG = G(input_vector)
 netG.apply(weights_init)
-
-
-class D(nn.Module):
-    feature_maps = 64
-    kernel_size = 4
-    stride = 2
-    padding = 1
-    bias = False
-    inplace = True
-
-    def __init__(self):
-        super(D, self).__init__()
-        self.main = nn.Sequential(
-            nn.Conv2d(3, self.feature_maps, self.kernel_size, self.stride, self.padding, bias=self.bias),
-            nn.LeakyReLU(0.2, inplace=self.inplace),
-            nn.Conv2d(self.feature_maps, self.feature_maps * 2, self.kernel_size, self.stride, self.padding,
-                      bias=self.bias),
-            nn.BatchNorm2d(self.feature_maps * 2), nn.LeakyReLU(0.2, inplace=self.inplace),
-            nn.Conv2d(self.feature_maps * 2, self.feature_maps * (2 * 2), self.kernel_size, self.stride, self.padding,
-                      bias=self.bias),
-            nn.BatchNorm2d(self.feature_maps * (2 * 2)), nn.LeakyReLU(0.2, inplace=self.inplace),
-            nn.Conv2d(self.feature_maps * (2 * 2), self.feature_maps * (2 * 2 * 2), self.kernel_size, self.stride,
-                      self.padding, bias=self.bias),
-            nn.BatchNorm2d(self.feature_maps * (2 * 2 * 2)), nn.LeakyReLU(0.2, inplace=self.inplace),
-            nn.Conv2d(self.feature_maps * (2 * 2 * 2), 1, self.kernel_size, 1, 0, bias=self.bias),
-            nn.Sigmoid()
-        )
-
-    def forward(self, input):
-        output = self.main(input)
-        return output.view(-1)
-
 
 # Creating the discriminator
 netD = D()
