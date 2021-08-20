@@ -13,13 +13,12 @@ batchSize = 64  # We set the size of the batch.
 imageSize = 64  # We set the size of the generated images (64x64).
 
 # Creating the transformations
-transform = transforms.Compose([transforms.Scale(imageSize), transforms.ToTensor(),
+transform = transforms.Compose([transforms.Resize((imageSize, imageSize)), transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5,
                                                                        0.5)), ])  # We create a list of transformations (scaling, tensor conversion, normalization) to apply to the input images.
 
 # Loading the dataset
-dataset = dset.CIFAR10(root='./data', download=True,
-                       transform=transform)  # We download the training set in the ./data folder and we apply the previous transformations on each image.
+dataset = dset.ImageFolder(root='./data', transform=transform)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batchSize, shuffle=True,
                                          num_workers=2)  # We use dataLoader to get the images of the training set batch by batch.
 
@@ -129,7 +128,6 @@ for epoch in range(nb_epochs):
     for i, data in enumerate(dataloader, 0):
 
         # 1st Step: Updating the weights of the neural network of the discriminator
-
         netD.zero_grad()
 
         # Training the discriminator with a real image of the dataset
