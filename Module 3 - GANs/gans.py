@@ -140,3 +140,6 @@ for epoch in range(nb_epochs):
         errD_fake = criterian(output, target)
 
         # Backpropagating the total error
+        errD = errD_real + errD_fake
+        errD.backward()
+        optimizerD.step()
