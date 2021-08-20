@@ -143,3 +143,11 @@ for epoch in range(nb_epochs):
         errD = errD_real + errD_fake
         errD.backward()
         optimizerD.step()
+
+        # 2nd Step: Updating the weights of the neural network of the generator
+        netG.zero_grad()
+        target = Variable(torch.ones(input.size()[0]))
+        output = netD(fake)
+        errG = criterian(output, target)
+        errG.backward()
+        optimizerG.step()
