@@ -61,12 +61,13 @@ generator_model = 'generator_model'
 discriminator_model = 'discriminator_model'
 
 
-def save_model(epoch, model, optimizer, error, filepath):
+def save_model(epoch, model, optimizer, error, filepath, noise=None):
     torch.save({
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
         'optimizer_state_dict': optimizer.state_dict(),
-        'loss': error.data
+        'loss': error.data,
+        'noise': noise
     }, filepath)
 
 
@@ -109,8 +110,8 @@ for epoch in range(nb_epochs):
         # 3rd Step: Printing the losses and saving the real images and the generated images of the minibatch every 100 steps
 
         print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, nb_epochs, i, len(dataloader), errD.data, errG.data))
-        save_model(epoch, netG, optimizerG, errG, generator_model)
-        save_model(epoch, netD, optimizerD, errD, discriminator_model)
+        save_model(epoch, netG, optimizerG, errG, generator_model, noise)
+        save_model(epoch, netD, optimizerD, errD, discriminator_model, noise)
 
         if i % 100 == 0:
             create_dir('results')
