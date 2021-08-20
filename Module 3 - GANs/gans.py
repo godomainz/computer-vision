@@ -76,9 +76,6 @@ class G(nn.Module):
         output = self.main(input)
         return output
 
-    def print(self):
-        print(int(self.feature_maps))
-
 
 # Creating the generator
 netG = G()
