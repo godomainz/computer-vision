@@ -9,8 +9,11 @@ import torchvision.datasets as dset
 import torchvision.transforms as transforms
 import torchvision.utils as vutils
 from torch.autograd import Variable
+import os
 
 # Setting some hyperparameters
+from unicodedata import normalize
+
 batchSize = 64  # We set the size of the batch.
 imageSize = 64  # We set the size of the generated images (64x64).
 
@@ -39,6 +42,12 @@ def weights_init(m):
 input_vector = 100
 
 
+# Create results directory
+def create_dir(name):
+    if not os.path.exists(name):
+        os.makedirs(name)
+
+
 # Defining the Generator
 class G(nn.Module):
     feature_maps = 512
@@ -52,18 +61,18 @@ class G(nn.Module):
         self.main = nn.Sequential(
             nn.ConvTranspose2d(input_vector, self.feature_maps, self.kernel_size, 1, 0, bias=self.bias),
             nn.BatchNorm2d(self.feature_maps), nn.ReLU(True),
-            nn.ConvTranspose2d(self.feature_maps, self.feature_maps / 2, self.kernel_size, self.stride, self.padding,
+            nn.ConvTranspose2d(self.feature_maps, int(self.feature_maps // 2), self.kernel_size, self.stride, self.padding,
                                bias=self.bias),
-            nn.BatchNorm2d(self.feature_maps / 2), nn.ReLU(True),
-            nn.ConvTranspose2d(self.feature_maps / 2, (self.feature_maps / 2) / 2, self.kernel_size, self.stride,
+            nn.BatchNorm2d(int(self.feature_maps // 2)), nn.ReLU(True),
+            nn.ConvTranspose2d(int(self.feature_maps // 2), int((self.feature_maps // 2) // 2), self.kernel_size, self.stride,
                                self.padding,
                                bias=self.bias),
-            nn.BatchNorm2d((self.feature_maps / 2) / 2), nn.ReLU(True),
-            nn.ConvTranspose2d((self.feature_maps / 2) / 2, ((self.feature_maps / 2) / 2) / 2, self.kernel_size,
+            nn.BatchNorm2d(int((self.feature_maps // 2) // 2)), nn.ReLU(True),
+            nn.ConvTranspose2d((int((self.feature_maps // 2) // 2)), int(((self.feature_maps // 2) // 2) // 2), self.kernel_size,
                                self.stride, self.padding,
                                bias=self.bias),
-            nn.BatchNorm2d((self.feature_maps / 2) / 2) / 2, nn.ReLU(True),
-            nn.ConvTranspose2d(((self.feature_maps / 2) / 2) / 2, 3, self.kernel_size, self.stride, self.padding,
+            nn.BatchNorm2d(int((self.feature_maps // 2) // 2) // 2), nn.ReLU(True),
+            nn.ConvTranspose2d(int(((self.feature_maps // 2) // 2) // 2), 3, self.kernel_size, self.stride, self.padding,
                                bias=self.bias),
             nn.Tanh()
         )
@@ -71,6 +80,9 @@ class G(nn.Module):
     def forward(self, input):
         output = self.main(input)
         return output
+
+    def print(self):
+        print(int(self.feature_maps))
 
 
 # Creating the generator
@@ -151,3 +163,13 @@ for epoch in range(nb_epochs):
         errG = criterian(output, target)
         errG.backward()
         optimizerG.step()
+
+        # 3rd Step: Printing the losses and saving the real images and the generated images
+        print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (
+        epoch, nb_epochs, i, len(dataloader), errD.data[0], errG.data[0]))
+
+        if i % 100 == 0:
+            create_dir('results')
+            vutils.save_image(real, '%s/real_samples.png' % "./results", normalize=True)
+            fake = netG(noise)
+            vutils.save_image(fake.data, '%s/fake_samples_epoch_%03d.png' % ("./results", epoch), normalize=True)
