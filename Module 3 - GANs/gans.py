@@ -95,13 +95,12 @@ def load_checkpoint(filepath):
     return None
 
 
+print("Device name : " + torch.cuda.get_device_name(0))
 for epoch in range(nb_epochs):
 
     for i, data in enumerate(dataloader, 0):
         checkpointG = load_checkpoint(generator_model)
         checkpointD = load_checkpoint(discriminator_model)
-        # checkpointG = None
-        # checkpointD = None
         if checkpointG:
             netG.load_state_dict(checkpointG['model_state_dict'])
             optimizerG.load_state_dict(checkpointG['optimizer_state_dict'])
