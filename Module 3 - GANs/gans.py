@@ -141,7 +141,7 @@ for epoch in range(nb_epochs):
 
         # 2nd Step: Updating the weights of the neural network of the generator
         netG.zero_grad()
-        if is_gpu_cuda_compatible():
+        if is_gpu_available():
             target = Variable(torch.ones(input.size()[0])).cuda()
         else:
             target = Variable(torch.ones(input.size()[0]))
