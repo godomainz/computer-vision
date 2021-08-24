@@ -237,7 +237,7 @@ cython_debug/
 # End of https://www.toptal.com/developers/gitignore/api/python,pycharm+all
 output.mp4
 results/
-data_cf/
+data*/
 discriminator_model
 generator_model
 training_attempt*/
