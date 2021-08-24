@@ -10,7 +10,7 @@ class D(nn.Module):
     def __init__(self):
         super(D, self).__init__()
         self.main = nn.Sequential(
-            nn.Conv2d(3, self.feature_maps, self.kernel_size, self.stride, self.padding, bias=self.bias),
+            nn.Conv2d(4, self.feature_maps, self.kernel_size, self.stride, self.padding, bias=self.bias),
             nn.LeakyReLU(0.2, inplace=self.inplace),
             nn.Conv2d(self.feature_maps, self.feature_maps * 2, self.kernel_size, self.stride, self.padding,
                       bias=self.bias),

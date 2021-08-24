@@ -10,19 +10,26 @@ from torch.autograd import Variable
 from generator import G
 from discriminator import D
 import os
+from PIL import Image
 
-# Setting some hyperparameters
 batchSize = 64  # We set the size of the batch.
 imageSize = 64  # We set the size of the generated images (64x64).
 input_vector = 100
-nb_epochs = 25
+nb_epochs = 500
 # Creating the transformations
 transform = transforms.Compose([transforms.Resize((imageSize, imageSize)), transforms.ToTensor(),
-                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5,
+                                transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5,
                                                                        0.5)), ])  # We create a list of transformations (scaling, tensor conversion, normalization) to apply to the input images.
 
+
+def pil_loader_rgba(path: str) -> Image.Image:
+    with open(path, 'rb') as f:
+        img = Image.open(f)
+        return img.convert('RGBA')
+
+
 # Loading the dataset
-dataset = dset.ImageFolder(root='./data', transform=transform)
+dataset = dset.ImageFolder(root='./data', transform=transform, loader=pil_loader_rgba)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batchSize, shuffle=True,
                                          num_workers=2)  # We use dataLoader to get the images of the training set batch by batch.
 
@@ -44,7 +51,7 @@ def is_cuda_available():
 def is_gpu_available():
     if is_cuda_available():
         if int(torch.cuda.device_count()) > 0:
-            return True
+            return False
         return False
     return False
 
@@ -93,6 +100,7 @@ def load_checkpoint(filepath):
     if os.path.exists(filepath):
         return torch.load(filepath)
     return None
+
 
 def main():
     print("Device name : " + torch.cuda.get_device_name(0))
@@ -152,7 +160,8 @@ def main():
 
             # 3rd Step: Printing the losses and saving the real images and the generated images of the minibatch every 100 steps
 
-            print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (epoch, nb_epochs, i, len(dataloader), errD.data, errG.data))
+            print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (
+            epoch, nb_epochs, i, len(dataloader), errD.data, errG.data))
             save_model(epoch, netG, optimizerG, errG, generator_model, noise)
             save_model(epoch, netD, optimizerD, errD, discriminator_model, noise)
 
@@ -161,6 +170,7 @@ def main():
                 vutils.save_image(real, '%s/real_samples.png' % "./results", normalize=True)
                 fake = netG(noise)
                 vutils.save_image(fake.data, '%s/fake_samples_epoch_%03d.png' % ("./results", epoch), normalize=True)
+
 
 if __name__ == "__main__":
     main()
