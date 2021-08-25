@@ -23,7 +23,7 @@ class G(nn.Module):
                                self.stride, self.padding,
                                bias=self.bias),
             nn.BatchNorm2d(int((self.feature_maps // 2) // 2) // 2), nn.ReLU(True),
-            nn.ConvTranspose2d(int(((self.feature_maps // 2) // 2) // 2), 4, self.kernel_size, self.stride, self.padding,
+            nn.ConvTranspose2d(int(((self.feature_maps // 2) // 2) // 2), 3, self.kernel_size, self.stride, self.padding,
                                bias=self.bias),
             nn.Tanh()
         )

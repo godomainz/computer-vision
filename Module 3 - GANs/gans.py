@@ -18,8 +18,7 @@ input_vector = 100
 nb_epochs = 500
 # Creating the transformations
 transform = transforms.Compose([transforms.Resize((imageSize, imageSize)), transforms.ToTensor(),
-                                transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5,
-                                                                            0.5)), ])  # We create a list of transformations (scaling, tensor conversion, normalization) to apply to the input images.
+                                transforms.Normalize((0.5, 0.5, 0.5), (0.5, 0.5, 0.5)), ])  # We create a list of transformations (scaling, tensor conversion, normalization) to apply to the input images.
 
 
 def pil_loader_rgba(path: str) -> Image.Image:
@@ -29,7 +28,7 @@ def pil_loader_rgba(path: str) -> Image.Image:
 
 
 # Loading the dataset
-dataset = dset.ImageFolder(root='./data', transform=transform, loader=pil_loader_rgba)
+dataset = dset.ImageFolder(root='./data', transform=transform)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batchSize, shuffle=True,
                                          num_workers=2)  # We use dataLoader to get the images of the training set batch by batch.
 
