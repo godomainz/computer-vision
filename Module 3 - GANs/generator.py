@@ -6,8 +6,9 @@ class G(nn.Module):
     padding = 1
     bias = False
 
-    def __init__(self, input_vector):
+    def __init__(self, input_vector, ngpu=0):
         super(G, self).__init__()
+        self.ngpu = ngpu
         self.main = nn.Sequential(
             nn.ConvTranspose2d(input_vector, self.feature_maps, self.kernel_size, 1, 0, bias=self.bias),
             nn.BatchNorm2d(self.feature_maps), nn.ReLU(True),

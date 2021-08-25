@@ -19,7 +19,7 @@ nb_epochs = 500
 # Creating the transformations
 transform = transforms.Compose([transforms.Resize((imageSize, imageSize)), transforms.ToTensor(),
                                 transforms.Normalize((0.5, 0.5, 0.5, 0.5), (0.5, 0.5, 0.5,
-                                                                       0.5)), ])  # We create a list of transformations (scaling, tensor conversion, normalization) to apply to the input images.
+                                                                            0.5)), ])  # We create a list of transformations (scaling, tensor conversion, normalization) to apply to the input images.
 
 
 def pil_loader_rgba(path: str) -> Image.Image:
@@ -56,6 +56,16 @@ def is_gpu_available():
     return False
 
 
+def num_of_gpus_available():
+    if is_gpu_available():
+        return int(torch.cuda.device_count())
+    return 0
+
+
+device = torch.device("cuda:0" if is_gpu_available() else "cpu")
+ngpu = num_of_gpus_available()
+print("Number of GPUs available: " + str(ngpu))
+
 # Create results directory
 def create_dir(name):
     if not os.path.exists(name):
@@ -63,16 +73,16 @@ def create_dir(name):
 
 
 # Creating the generator
-netG = G(input_vector)
+netG = G(input_vector, ngpu).to(device)
 netG.apply(weights_init)
 
 # Creating the discriminator
-netD = D()
+netD = D(ngpu).to(device)
 netD.apply(weights_init)
 
 if is_gpu_available():
-    netG.cuda()
-    netD.cuda()
+    netG = nn.DataParallel(netG, list(range(ngpu)))
+    netD = nn.DataParallel(netD, list(range(ngpu)))
 
 # Training the DCGANs
 
@@ -161,7 +171,7 @@ def main():
             # 3rd Step: Printing the losses and saving the real images and the generated images of the minibatch every 100 steps
 
             print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (
-            epoch, nb_epochs, i, len(dataloader), errD.data, errG.data))
+                epoch, nb_epochs, i, len(dataloader), errD.data, errG.data))
             save_model(epoch, netG, optimizerG, errG, generator_model, noise)
             save_model(epoch, netD, optimizerD, errD, discriminator_model, noise)
 
