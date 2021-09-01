@@ -51,7 +51,7 @@ def is_cuda_available():
 def is_gpu_available():
     if is_cuda_available():
         if int(torch.cuda.device_count()) > 0:
-            return False
+            return True
         return False
     return False
 
