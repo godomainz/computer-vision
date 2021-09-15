@@ -31,7 +31,7 @@ def pil_loader_rgba(path: str) -> Image.Image:
 # Loading the dataset
 dataset = dset.ImageFolder(root='./data', transform=transform, loader=pil_loader_rgba)
 dataloader = torch.utils.data.DataLoader(dataset, batch_size=batchSize, shuffle=True,
-                                         num_workers=2)  # We use dataLoader to get the images of the training set batch by batch.
+                                         num_workers=7)  # We use dataLoader to get the images of the training set batch by batch.
 
 
 # Defining the weights_init function that takes as input a neural network m and that will initialize all its weights.
