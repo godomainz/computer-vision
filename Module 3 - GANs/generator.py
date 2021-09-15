@@ -4,7 +4,7 @@ class G(nn.Module):
     kernel_size = 4
     stride = 2
     padding = 1
-    bias = False
+    bias = True
 
     def __init__(self, input_vector, ngpu=0):
         super(G, self).__init__()

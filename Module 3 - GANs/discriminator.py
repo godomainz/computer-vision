@@ -4,7 +4,7 @@ class D(nn.Module):
     kernel_size = 4
     stride = 2
     padding = 1
-    bias = False
+    bias = True
     inplace = True
 
     def __init__(self, ngpu=0):

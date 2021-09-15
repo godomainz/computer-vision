@@ -87,8 +87,8 @@ if is_gpu_available():
 # Training the DCGANs
 
 criterion = nn.BCELoss()
-optimizerD = optim.Adam(netD.parameters(), lr=0.0002, betas=(0.5, 0.999))
-optimizerG = optim.Adam(netG.parameters(), lr=0.0002, betas=(0.5, 0.999))
+optimizerD = optim.Adam(netD.parameters(), lr=0.0001, betas=(0.5, 0.999))
+optimizerG = optim.Adam(netG.parameters(), lr=0.0001, betas=(0.5, 0.999))
 
 generator_model = 'generator_model'
 discriminator_model = 'discriminator_model'
