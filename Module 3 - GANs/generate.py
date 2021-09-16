@@ -1,7 +1,7 @@
 import torch
 from torch.autograd import Variable
 from generator import G
-from gans import is_gpu_available, num_of_gpus_available, device, generator_model, load_checkpoint
+from gan import is_gpu_available, num_of_gpus_available, device, generator_model, load_checkpoint
 import torch.nn as nn
 import torchvision.utils as vutils
 
