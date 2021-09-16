@@ -15,7 +15,7 @@ netG = G(input_vector, ngpu).to(device)
 if is_gpu_available():
     netG = nn.DataParallel(netG, list(range(ngpu)))
 if checkpointG:
-            netG.load_state_dict(checkpointG['model_state_dict'])
+            netG.load_state_dict(checkpointG['model_state_dict'], strict=False)
 
 fake = netG(noise)
 vutils.save_image(fake.data, 'deepfake.png', normalize=True)
