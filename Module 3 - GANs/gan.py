@@ -94,16 +94,10 @@ generator_model = 'generator_model'
 discriminator_model = 'discriminator_model'
 
 
-def save_model(epoch, model, optimizer, error, filepath, noise=None):
+def save_model(model, filepath):
     if os.path.exists(filepath):
         os.remove(filepath)
-    torch.save({
-        'epoch': epoch,
-        'model_state_dict': model.state_dict(),
-        'optimizer_state_dict': optimizer.state_dict(),
-        'loss': error,
-        'noise': noise
-    }, filepath)
+    torch.save(model, filepath)
 
 
 def load_checkpoint(filepath):
