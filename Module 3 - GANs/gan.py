@@ -172,14 +172,14 @@ def main():
 
             print('[%d/%d][%d/%d] Loss_D: %.4f Loss_G: %.4f' % (
                 epoch, nb_epochs, i, len(dataloader), errD.data, errG.data))
-            save_model(epoch, netG, optimizerG, errG, generator_model, noise)
-            save_model(epoch, netD, optimizerD, errD, discriminator_model, noise)
 
             if i % 100 == 0:
                 create_dir('results')
                 vutils.save_image(real, '%s/real_samples.png' % "./results", normalize=True)
                 fake = netG(noise)
                 vutils.save_image(fake.data, '%s/fake_samples_epoch_%03d.png' % ("./results", epoch), normalize=True)
+        save_model(epoch, netG, optimizerG, errG, generator_model, noise)
+        save_model(epoch, netD, optimizerD, errD, discriminator_model, noise)
 
 
 if __name__ == "__main__":
