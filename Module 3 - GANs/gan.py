@@ -94,11 +94,16 @@ generator_model = 'generator_model'
 discriminator_model = 'discriminator_model'
 
 
-def save_model(model, filepath):
+def save_model(epoch, model, optimizer, error, filepath, noise=None):
     if os.path.exists(filepath):
         os.remove(filepath)
-    torch.save(model, filepath)
-
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': optimizer.state_dict(),
+        'loss': error,
+        'noise': noise
+    }, filepath)
 
 def load_checkpoint(filepath):
     if os.path.exists(filepath):
@@ -172,8 +177,8 @@ def main():
                 vutils.save_image(real, '%s/real_samples.png' % "./results", normalize=True)
                 fake = netG(noise)
                 vutils.save_image(fake.data, '%s/fake_samples_epoch_%03d.png' % ("./results", epoch), normalize=True)
-        save_model(netG, generator_model)
-        save_model(netD, discriminator_model)
+        save_model(epoch, netG, optimizerG, errG, generator_model, noise)
+        save_model(epoch, netD, optimizerD, errD, discriminator_model, noise)
 
 
 if __name__ == "__main__":
